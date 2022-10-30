@@ -4,11 +4,13 @@
 #include <QDebug>
 #include <QStandardItemModel>
 #include <QMetaEnum>
-#include "qmqtt.h"
-
+#include <QThread>
+#include <QMessageBox>
 void logger(QTextBrowser *t,QString s){
     qDebug()<< s;
-    t->append("<font color=\"#0000FF\""+s+"</font>");
+    t->append(QString( "[%1]-> %2")
+                  .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz"))
+                  .arg(s));
 }
 
 MqttWindow::MqttWindow(QWidget *parent) :
@@ -45,6 +47,7 @@ MqttWindow::~MqttWindow()
 {
     qDebug()<< "Mqtt window destoryed, id: " << this->id.toString();
     delete ui;
+    delete client;
 }
 
 void MqttWindow::closeEvent(QCloseEvent *){
@@ -77,35 +80,50 @@ void MqttWindow::on_subscribeListView_clicked(const QModelIndex &index)
 
 void MqttWindow::on_connectButton_clicked()
 {
+
     if(client->isConnectedToHost()){
-        client->disconnect();
+        switch(QMessageBox::information(this,  "Disconnect",
+                                         "Disconnect from broker?",
+                                         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) )
+        {
+        case QMessageBox::Yes:
+            client->disconnectFromHost();
+            logger(ui->logTextBrowser,"client try to disconnect");
+            return;
+        case QMessageBox::No:
+            return;
+        default:
+            return;
+        }
     }
+    //
+    client->setCleanSession(true);
     client->setHostName(this->ui->hostEdit->text());
-//    client->setHost(QHostAddress(this->ui->hostEdit->text()));
     client->setPort(this->ui->portSpin->value());
     client->setClientId(this->ui->clientIdEdit->text());
     client->setUsername(this->ui->usernameEdit->text());
     client->setPassword(this->ui->passwordEdit->text().toUtf8());
-
+    QThread::sleep(1);
     client->connectToHost();
-    ui->connectButton->setDisabled(true);
 }
 void MqttWindow::connected(){
     logger(ui->logTextBrowser,"client connected");
     ui->connectButton->setStyleSheet("background-color:#32CD32;");
+    ui->connectButton->setText("Connected");
+    ui->connectButton->setDisabled(false);
 }
 void MqttWindow::disconnected(){
     logger(ui->logTextBrowser,"client disconnected");
     ui->connectButton->setDisabled(false);
     ui->connectButton->setStyleSheet("background-color:#FF4500;");
+    ui->connectButton->setText("Connect");
 }
 void MqttWindow::error(const QMQTT::ClientError error){
     QMetaEnum errors = QMetaEnum::fromType<QMQTT::ClientError>();
-    ui->logTextBrowser->append(QString( "[%1]client error:%2")
-                                   .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz"))
-                                   .arg(errors.valueToKey(error)));
+    logger(ui->logTextBrowser, errors.valueToKey(error));
     ui->connectButton->setDisabled(false);
     ui->connectButton->setStyleSheet("background-color:#FF4500;");
+    ui->connectButton->setText("Connect");
 }
 
 void MqttWindow::subscribed(const QString& topic, const quint8 qos ){
@@ -126,5 +144,6 @@ void MqttWindow::published(const QMQTT::Message& message, quint16 msgid){
 }
 
 void MqttWindow::timeout(){
+
     logger(ui->logTextBrowser,"timeout");
 }
