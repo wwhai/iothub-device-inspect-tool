@@ -6,16 +6,69 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>648</width>
+    <height>364</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>130</y>
+      <width>81</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>IoT Test Tool</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>648</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu1">
+    <property name="title">
+     <string>新建</string>
+    </property>
+    <addaction name="actionMQTT"/>
+    <addaction name="actionCOAP"/>
+   </widget>
+   <widget class="QMenu" name="menu2">
+    <property name="title">
+     <string>关于</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menu1"/>
+   <addaction name="menu2"/>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionMQTT">
+   <property name="text">
+    <string>MQTT Client</string>
+   </property>
+  </action>
+  <action name="actionCOAP">
+   <property name="text">
+    <string>COAP Client</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
