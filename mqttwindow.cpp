@@ -23,11 +23,7 @@ MqttWindow::MqttWindow(QWidget *parent) :
     this->setAttribute(Qt::WA_DeleteOnClose, true);
     this->setWindowTitle("MQTT Client: "+this->id.toString());
     QListView *subscribeListView= this->findChild<QListView *>("subscribeListView");
-    QStandardItemModel *model = new QStandardItemModel(this);
-    QStandardItem *item1 = new QStandardItem("Topic: /user/group/devid/1, QOS: 1");
-    model->appendRow(item1);
-    QStandardItem *item2 = new QStandardItem("Topic: /user/group/devid/2, QOS: 1");
-    model->appendRow(item2);
+    this->model = new QStandardItemModel(this);
     subscribeListView->setModel(model);
     qDebug()<< "Mqtt window created, id: " << this->id.toString();
     //
@@ -58,9 +54,10 @@ void MqttWindow::closeEvent(QCloseEvent *){
 
 void MqttWindow::on_deleteSubscribeButton_clicked()
 {
-    qDebug()<< "deleteSubscribe: " << this->currentSelectedItem;
+
     if(!ui->subscribeListView->model()->itemData(this->currentSelectedItem).empty()){
         ui->subscribeListView->model()->removeRow(this->currentSelectedItem.row());
+        qDebug()<< "deleteSubscribe: " << this->currentSelectedItem;
     }
 }
 
@@ -143,7 +140,38 @@ void MqttWindow::published(const QMQTT::Message& message, quint16 msgid){
 
 }
 
+void MqttWindow::getSubscribeTopicEntry(QString topic, int qos){
+    if(topic.isEmpty()){
+        logger(ui->logTextBrowser, "Topic Cant Empty");
+        QMessageBox::warning(this, "Warning", "Topic Cant Empty");
+        return;
+    }
+    //
+    for (int i = 0; i < ui->subscribeListView->model()->rowCount(); ++i) {
+        QStandardItemModel *model = dynamic_cast<QStandardItemModel*>(ui->subscribeListView->model());
+        QStandardItem *item= model->item(i);
+        if(item->text().contains(topic)){
+            QMessageBox::warning(this, "Warning", "Duplicate Topic, Please Remove Befor Subscribe Another Same Topic");
+            return;
+        }
+    }
+
+    qDebug()<< "getSubscribeTopicEntry: " << topic <<",qos: " << qos;
+    QStandardItem *item = new QStandardItem(QString::number(qos)+ "  |  " + topic);
+    model->appendRow(item);
+    if (this->client->isConnectedToHost()){
+        this->client->subscribe(topic, qos);
+    }
+}
 void MqttWindow::timeout(){
 
-    logger(ui->logTextBrowser,"timeout");
 }
+
+void MqttWindow::on_addSubscribeButton_clicked()
+{
+    this->addSubscribeDialog = new AddSubscribeDialog(this);
+    QObject::connect(this->addSubscribeDialog, SIGNAL(getSubscribeTopicEntry(QString, int)),
+                     this, SLOT(getSubscribeTopicEntry(QString, int)));
+    this->addSubscribeDialog->show();
+}
+

@@ -88,6 +88,13 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="2">
+      <widget class="QRadioButton" name="cleanSessionRadio">
+       <property name="text">
+        <string>Clean Session</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget_2">
@@ -149,7 +156,7 @@
      <item row="0" column="1">
       <widget class="QTabWidget" name="logTab">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="msgReceivedTab">
         <attribute name="title">
@@ -173,18 +180,63 @@
         <widget class="QListView" name="subscribeListView">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>0</y>
-           <width>681</width>
-           <height>291</height>
+           <x>0</x>
+           <y>30</y>
+           <width>691</width>
+           <height>261</height>
           </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QListView 
+{
+      show-decoration-selected: 1;
+}
+ 
+QListView::item:alternate 
+{
+      background: #EEEEEE;
+}
+ 
+QListView::item:selected 
+{
+      border: 1px solid #6a6ea9;
+}
+ 
+QListView::item:selected:!active 
+{
+      background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                  stop: 0 #ABAFE5, stop: 1 #8588B2);
+}
+ 
+QListView::item:selected:active
+{
+      background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                  stop: 0 #6a6ea9, stop: 1 #888dd9);
+}
+ 
+QListView::item:hover
+{
+      background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                  stop: 0 #FAFBFE, stop: 1 #DCDEF1);
+}
+
+QListWidget#listWidget
+{
+    alternate-background-color:blue;background:yellow
+}</string>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="isWrapping" stdset="0">
+          <bool>false</bool>
          </property>
         </widget>
         <widget class="QPushButton" name="addSubscribeButton">
          <property name="geometry">
           <rect>
            <x>700</x>
-           <y>0</y>
+           <y>10</y>
            <width>61</width>
            <height>31</height>
           </rect>
@@ -197,13 +249,26 @@
          <property name="geometry">
           <rect>
            <x>700</x>
-           <y>40</y>
+           <y>50</y>
            <width>61</width>
            <height>31</height>
           </rect>
          </property>
          <property name="text">
           <string>Delete</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_7">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>10</y>
+           <width>191</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>QOS        Topic</string>
          </property>
         </widget>
        </widget>
@@ -233,7 +298,7 @@
      <x>0</x>
      <y>0</y>
      <width>789</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

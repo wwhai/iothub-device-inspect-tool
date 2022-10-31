@@ -16,17 +16,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    addsubscribedialog.cpp \
     locallogger.cpp \
     main.cpp \
     mainwindow.cpp \
     mqttwindow.cpp
 
 HEADERS += \
+    addsubscribedialog.h \
     locallogger.h \
     mainwindow.h \
     mqttwindow.h
 
 FORMS += \
+    addsubscribedialog.ui \
     mainwindow.ui \
     mqttwindow.ui
 

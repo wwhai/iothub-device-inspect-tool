@@ -5,7 +5,9 @@
 #include <QUuid>
 #include <QModelIndex>
 #include <QTimer>
-#include "qmqtt.h"
+#include <qmqtt.h>
+#include <addsubscribedialog.h>
+#include <QStandardItemModel>
 namespace Ui {
 class MqttWindow;
 }
@@ -46,6 +48,10 @@ private slots:
     void published(const QMQTT::Message& message, quint16 msgid = 0);
     //
     void timeout();
+    //
+    void on_addSubscribeButton_clicked();
+    //
+    void getSubscribeTopicEntry(QString topic, int qos);
 
 private:
     Ui::MqttWindow *ui;
@@ -56,6 +62,9 @@ private:
     QModelIndex currentSelectedItem;
     QMQTT::Client *client;
     QTimer timer;
+    //
+    AddSubscribeDialog *addSubscribeDialog;
+    QStandardItemModel *model;
 
 };
 
