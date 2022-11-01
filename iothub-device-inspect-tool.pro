@@ -1,5 +1,5 @@
-QT       += core gui qmqtt
-
+QT  += core gui
+QT  += network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -16,26 +16,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    addsubscribedialog.cpp \
+    locallogger.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    mqttwindow.cpp
 
 HEADERS += \
-    mainwindow.h
+    addsubscribedialog.h \
+    locallogger.h \
+    mainwindow.h \
+    mqttwindow.h
 
 FORMS += \
-    mainwindow.ui
+    addsubscribedialog.ui \
+    mainwindow.ui \
+    mqttwindow.ui
 
 TRANSLATIONS += \
     iothub-device-inspect-tool_zh_CN.ts
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/qmqtt/lib/release/ -lQt5Qmqtt
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/qmqtt/lib/debug/ -lQt5Qmqtt
-else:unix: LIBS += -L$$PWD/qmqtt/lib/ -lQt5Qmqtt
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/qmqtt/lib/ -lQt5Qmqtt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/qmqtt/lib/ -lQt5Qmqttd
 
-INCLUDEPATH += $$PWD/qmqtt/include
-DEPENDPATH += $$PWD/qmqtt/include
+INCLUDEPATH += $$PWD/qmqtt/src/mqtt
+DEPENDPATH += $$PWD/qmqtt/src/mqtt

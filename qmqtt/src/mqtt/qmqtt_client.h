@@ -60,7 +60,7 @@ namespace QMQTT {
 Q_MQTT_EXPORT Q_NAMESPACE
 #endif
 
-static const quint8 LIBRARY_VERSION_MAJOR = 0;
+    static const quint8 LIBRARY_VERSION_MAJOR = 0;
 static const quint8 LIBRARY_VERSION_MINOR = 3;
 static const quint8 LIBRARY_VERSION_REVISION = 1;
 //static const char* LIBRARY_VERSION = "0.3.1";
