@@ -31,7 +31,6 @@ public:
 
 private slots:
     void on_deleteSubscribeButton_clicked();
-    void on_subscribeListView_activated(const QModelIndex &index);
     void on_subscribeListView_clicked(const QModelIndex &index);
     void on_connectButton_clicked();
     // Mqtt

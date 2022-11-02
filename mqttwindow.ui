@@ -156,7 +156,7 @@
      <item row="0" column="1">
       <widget class="QTabWidget" name="logTab">
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="msgReceivedTab">
         <attribute name="title">
@@ -170,6 +170,12 @@
            <width>769</width>
            <height>319</height>
           </rect>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
          </property>
         </widget>
        </widget>
@@ -285,6 +291,12 @@ QListWidget#listWidget
            <height>291</height>
           </rect>
          </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
         </widget>
        </widget>
       </widget>
@@ -298,7 +310,7 @@ QListWidget#listWidget
      <x>0</x>
      <y>0</y>
      <width>789</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
