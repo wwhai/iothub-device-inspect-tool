@@ -6,14 +6,8 @@
 #include <QMetaEnum>
 #include <QThread>
 #include <QMessageBox>
-void logger(QTextBrowser *t, QString s)
-{
-    qDebug() << s;
-    t->append(QString( "[%1]-> %2")
-              .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz"))
-              .arg(s));
-}
-
+#include "locallogger.h"
+#include <QMenu>
 MqttWindow::MqttWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MqttWindow)
@@ -22,10 +16,15 @@ MqttWindow::MqttWindow(QWidget *parent) :
     this->setParent(parent);
     this->id = QUuid::createUuid();
     this->setAttribute(Qt::WA_DeleteOnClose, true);
+    this->setFixedSize( this->width(), this->height());
     this->setWindowTitle("MQTT Client: " + this->id.toString());
-    QListView *subscribeListView = this->findChild<QListView *>("subscribeListView");
     this->model = new QStandardItemModel(this);
-    subscribeListView->setModel(model);
+    //
+    this->contextMenu = new QMenu(this->ui->msgTextBrowser);
+    this->clearAction = new QAction("ClearContent", this->ui->msgTextBrowser);
+    this->contextMenu->addAction(clearAction);
+    QObject::connect(this->clearAction, SIGNAL(triggered(bool)), this, SLOT(clearText(bool)));
+    this->ui->subscribeListView->setModel(model);
     qDebug() << "Mqtt window created, id: " << this->id.toString();
     //
     ui->clientIdEdit->setText(this->id.toString());
@@ -37,7 +36,11 @@ MqttWindow::MqttWindow(QWidget *parent) :
     QObject::connect(client, SIGNAL(connected()), this, SLOT(connected()));
     QObject::connect(client, SIGNAL(received(QMQTT::Message)), this, SLOT(received(QMQTT::Message)));
     QObject::connect(client, SIGNAL(pingresp()), this, SLOT(pingresp()));
-
+    //
+    QObject::connect(client, SIGNAL(pingresp()), this, SLOT(pingresp()));
+    QObject::connect(client, SIGNAL(subscribed(const QString &, const quint8)), this, SLOT(subscribed(const QString &,
+                     const quint8)));
+    QObject::connect(client, SIGNAL(unsubscribed(const QString &)), this, SLOT(unsubscribed(const QString &)));
 }
 
 MqttWindow::~MqttWindow()
@@ -53,17 +56,31 @@ void MqttWindow::closeEvent(QCloseEvent *)
     MainWindow *mainWindow = ( MainWindow *)this->parent();
     mainWindow->MQTTWindowMap.remove(this->id.toString());
 }
-
+QString parseTopic(QString i)
+{
+    // "QOS  |  Topic"
+    return i.mid(i.indexOf("|") + 3, i.length());
+}
+int parseQos(QString i)
+{
+    if(i[0] == 0) {
+        return 0;
+    }
+    if(i[1] == 1) {
+        return 1;
+    }
+    if(i[1] == 1) {
+        return 2;
+    }
+    return  0;
+}
 void MqttWindow::on_deleteSubscribeButton_clicked()
 {
     if(!ui->subscribeListView->model()->itemData(this->currentSelectedItem).empty()) {
         if (this->client->isConnectedToHost()) {
             QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(ui->subscribeListView->model());
             QStandardItem *item = model->itemFromIndex(this->currentSelectedItem);
-            int index = item->text().indexOf("|"); //"0  |  t"
-            this->client->unsubscribe(item->text().mid(index, item->text().length()));
-
-            qDebug() << "Unsubscribe topic: " << item->text().mid(index + 3, item->text().length());
+            this->client->unsubscribe(parseTopic(item->text()));
         }
         ui->subscribeListView->model()->removeRow(this->currentSelectedItem.row());
     }
@@ -100,15 +117,23 @@ void MqttWindow::on_connectButton_clicked()
     client->setClientId(this->ui->clientIdEdit->text());
     client->setUsername(this->ui->usernameEdit->text());
     client->setPassword(this->ui->passwordEdit->text().toUtf8());
-    QThread::sleep(1);
+    QThread::msleep(100);
     client->connectToHost();
 }
 void MqttWindow::connected()
 {
-    logger(ui->logTextBrowser, "client connected");
+    logger(ui->logTextBrowser, "Success connect to: " + ui->hostEdit->text() + ":" + QString::number(
+               ui->portSpin->value()));
     ui->connectButton->setStyleSheet("background-color:#32CD32;");
     ui->connectButton->setText("Connected");
     ui->connectButton->setDisabled(false);
+
+    for (int i = 0; i < ui->subscribeListView->model()->rowCount(); ++i) {
+        QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(ui->subscribeListView->model());
+        QStandardItem *item = model->item(i);
+        this->client->subscribe(parseTopic(item->text()), parseQos(item->text()));
+    }
+
 }
 void MqttWindow::disconnected()
 {
@@ -128,11 +153,11 @@ void MqttWindow::error(const QMQTT::ClientError error)
 
 void MqttWindow::subscribed(const QString &topic, const quint8 qos )
 {
-    logger(ui->logTextBrowser, QString("client subscribed:%1 with QOS:%2").arg(topic).arg(qos));
+    logger(ui->logTextBrowser, QString("Subscribed: %1, QOS: %2").arg(topic).arg(qos));
 }
 void MqttWindow::unsubscribed(const QString &topic)
 {
-    logger(ui->logTextBrowser, QString("client unsubscribed:%1").arg(topic));
+    logger(ui->logTextBrowser, QString("Unsubscribed: %1").arg(topic));
 }
 
 void MqttWindow::pingresp()
@@ -142,11 +167,20 @@ void MqttWindow::pingresp()
 
 void MqttWindow::received(const QMQTT::Message &message)
 {
-    logger(ui->msgTextBrowser, QString("Received data: %1").arg(QString::fromUtf8(message.payload())));
+    logger(ui->msgTextBrowser, QString("Topic: %1, QoS: %2, Id: %3, Paylad: %4")
+           .arg(message.topic())
+           .arg(QString::number(message.qos()))
+           .arg(QString::number(message.id()))
+           .arg(QString::fromUtf8(message.payload())));
 }
 void MqttWindow::published(const QMQTT::Message &message, quint16 msgid)
 {
-
+    logger(ui->msgTextBrowser,
+           QString("Published success: Topic: %1, QoS: %2, Id: %3, Paylad: %4")
+           .arg(message.topic())
+           .arg(QString::number(message.qos()))
+           .arg(QString::number(msgid))
+           .arg(QString::fromUtf8(message.payload())));
 }
 
 void MqttWindow::getSubscribeTopicEntry(QString topic, int qos)
@@ -177,10 +211,6 @@ void MqttWindow::getSubscribeTopicEntry(QString topic, int qos)
         this->client->subscribe(topic, qos);
     }
 }
-void MqttWindow::timeout()
-{
-
-}
 
 void MqttWindow::on_addSubscribeButton_clicked()
 {
@@ -190,3 +220,45 @@ void MqttWindow::on_addSubscribeButton_clicked()
     this->addSubscribeDialog->show();
 }
 
+
+void MqttWindow::on_publishMsgButton_clicked()
+{
+    if (!this->client->isConnectedToHost()) {
+        QMessageBox::warning(this, "Warning", "Client has disconnected from broker.");
+        return;
+    }
+    if(ui->publishTopicEdit->text().isEmpty()) {
+        QMessageBox::warning(this, "Warning", "Required Topic");
+        return;
+    }
+    if(ui->pubMsgEdit->toPlainText().isEmpty()) {
+        QMessageBox::warning(this, "Warning", "Required Message");
+        return;
+    }
+
+    int qos = ui->publishQosSpin->value();
+    QMQTT::Message message(0,
+                           ui->publishTopicEdit->text(),
+                           ui->pubMsgEdit->toPlainText().toUtf8(),
+                           qos,
+                           ui->retainCheck->isChecked(),
+                           ui->dupCheck->isChecked());
+    if (this->client->isConnectedToHost()) {
+        this->client->publish(message);
+    }
+}
+
+void MqttWindow::on_clearContentButton_clicked()
+{
+    ui->pubMsgEdit->setText("");
+}
+
+void MqttWindow::on_msgTextBrowser_customContextMenuRequested(const QPoint &pos)
+{
+    this->contextMenu->exec(QCursor::pos());
+}
+
+void MqttWindow::clearText(bool t)
+{
+    ui->msgTextBrowser->setText("");
+}

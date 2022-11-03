@@ -8,15 +8,15 @@
 #include <qmqtt.h>
 #include <addsubscribedialog.h>
 #include <QStandardItemModel>
-namespace Ui {
+namespace Ui
+{
 class MqttWindow;
 }
 // Mqtt subscribe list item
-typedef struct SubscribeTopic
-{
+typedef struct SubscribeTopic {
     QString topic;
     qint8 qos;
-}SubscribeTopic;
+} SubscribeTopic;
 Q_DECLARE_METATYPE(SubscribeTopic);
 //
 class MqttWindow : public QMainWindow
@@ -39,19 +39,24 @@ private slots:
     //
     void error(const QMQTT::ClientError error);
     //
-    void subscribed(const QString& topic, const quint8 qos = 0);
-    void unsubscribed(const QString& topic);
+    void subscribed(const QString &topic, const quint8 qos = 0);
+    void unsubscribed(const QString &topic);
     void pingresp();
     //
-    void received(const QMQTT::Message& message);
-    void published(const QMQTT::Message& message, quint16 msgid = 0);
-    //
-    void timeout();
+    void received(const QMQTT::Message &message);
+    void published(const QMQTT::Message &message, quint16 msgid = 0);
     //
     void on_addSubscribeButton_clicked();
     //
     void getSubscribeTopicEntry(QString topic, int qos);
 
+    void on_publishMsgButton_clicked();
+
+    void on_clearContentButton_clicked();
+
+    void on_msgTextBrowser_customContextMenuRequested(const QPoint &pos);
+    //
+    void clearText(bool t);
 private:
     Ui::MqttWindow *ui;
     QString clientId, username, password;
@@ -60,11 +65,12 @@ private:
     //
     QModelIndex currentSelectedItem;
     QMQTT::Client *client;
-    QTimer timer;
     //
     AddSubscribeDialog *addSubscribeDialog;
     QStandardItemModel *model;
-
+    //
+    QMenu *contextMenu;
+    QAction *clearAction;
 };
 
 #endif // MQTTWINDOW_H
