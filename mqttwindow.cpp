@@ -66,10 +66,10 @@ int parseQos(QString i)
     if(i[0] == 0) {
         return 0;
     }
-    if(i[1] == 1) {
+    if(i[0] == 1) {
         return 1;
     }
-    if(i[1] == 1) {
+    if(i[0] == 2) {
         return 2;
     }
     return  0;
