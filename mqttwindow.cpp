@@ -164,14 +164,43 @@ void MqttWindow::pingresp()
 {
 
 }
+static QString msgRecvTemplate = "<html>"
+                                 "<body>"
+                                 "<div style=\"width:100%; height: 100%;\">"
+                                 "<table border=\"1\" style=\"border-collapse: collapse; border-spacing: 0;width: 100%;border-color: aqua;\">"
+                                 "<tr>"
+                                 "<td style=\"background-color:#b800e6;color: aliceblue;\">TOPIC</td>"
+                                 "<td style=\"background-color:#28353d;color: aliceblue;text-align: center;\" colspan=\"5\">%1</td>"
+                                 "</tr>"
+                                 "<tr>"
+                                 "<td style=\"background-color:#00eeff;color: rgb(0, 0, 0);\">Ts</td>"
+                                 "<td style=\"background-color:#28353d ;color: aliceblue;text-align: center;\">%2</td>"
 
+                                 "<td style=\"background-color:#5d5ffc;color: aliceblue;\">Retain</td>"
+                                 "<td style=\"background-color:#28353d ;color: aliceblue;text-align: center;\">%3</td>"
+
+                                 "<td style=\"background-color:#fdad00;color: rgb(0, 0, 0);\">QOS</td>"
+                                 "<td style=\"background-color:#28353d ;color: aliceblue;text-align: center;\">%4</td>"
+                                 "</tr>"
+                                 "<tr>"
+                                 "<td style=\"background-color:#000000;color: rgb(166, 255, 0);margin: 2px;padding: 2px;\" colspan=\"6\">"
+                                 "%5"
+                                 "</td>"
+                                 "</tr>"
+                                 "</table>"
+                                 "</div>"
+                                 "</body>"
+                                 "</html>";
 void MqttWindow::received(const QMQTT::Message &message)
 {
-    logger(ui->msgTextBrowser, QString("Topic: %1, QoS: %2, Id: %3, Paylad: %4")
-           .arg(message.topic())
+    // T TS R Qo Msg
+
+    logger(ui->msgTextBrowser, msgRecvTemplate.arg(message.topic())
+           .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"))
+           .arg(QString::number(message.retain()))
            .arg(QString::number(message.qos()))
-           .arg(QString::number(message.id()))
            .arg(QString::fromUtf8(message.payload())));
+
 }
 void MqttWindow::published(const QMQTT::Message &message, quint16 msgid)
 {
