@@ -6,25 +6,65 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
-    <height>364</height>
+    <width>407</width>
+    <height>169</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>IoT Test Tool</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">/**正常情况下样式**/
+QPushButton{
+	font: 10pt &quot;微软雅黑&quot;;
+    color: #2f3640;
+    background-color: #f5f6fa;
+    border-color: #2f3640;
+    border-radius: 15px;
+    border-style: solid;
+    border-width: 2px;
+    padding: 5px;
+}
+
+/**鼠标停留在按钮上的样式**/
+QPushButton::hover{	
+    color: #FFFFFF;
+    background-color: #718093;
+    border-color: #2f3640;
+}
+
+/**鼠标按压下去的样式**/
+QPushButton::pressed,QPushButton::checked{
+    color: #FFFFFF;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
+}
+
+/**按钮失能情况下样式**/
+QPushButton::disabled{
+    color: #FFFFFF;
+    background-color: #dcdde1;
+    border-color: #dcdde1;
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>130</y>
-      <width>81</width>
-      <height>61</height>
+      <x>130</x>
+      <y>40</y>
+      <width>141</width>
+      <height>51</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>14</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
     <property name="text">
-     <string>IoT Test Tool</string>
+     <string>IoT Test Tools</string>
     </property>
    </widget>
   </widget>
@@ -33,8 +73,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>648</width>
-     <height>22</height>
+     <width>407</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu1">
@@ -43,6 +83,7 @@
     </property>
     <addaction name="actionMQTT"/>
     <addaction name="actionCOAP"/>
+    <addaction name="actionMoodbus_Client"/>
    </widget>
    <widget class="QMenu" name="menu2">
     <property name="title">
@@ -53,7 +94,6 @@
    <addaction name="menu1"/>
    <addaction name="menu2"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionMQTT">
    <property name="text">
     <string>MQTT Client</string>
@@ -67,6 +107,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionMoodbus_Client">
+   <property name="text">
+    <string>Modbus Client</string>
    </property>
   </action>
  </widget>
