@@ -57,11 +57,17 @@ private slots:
     void on_msgTextBrowser_customContextMenuRequested(const QPoint &pos);
     //
     void clearText(bool t);
+    void on_dupCheck_stateChanged(int arg1);
+
+    void on_retainCheck_stateChanged(int arg1);
+
 private:
     Ui::MqttWindow *ui;
     QString clientId, username, password;
     QString host;
     qint32 port;
+    //
+    quint64 msgId;
     //
     QModelIndex currentSelectedItem;
     QMQTT::Client *client;

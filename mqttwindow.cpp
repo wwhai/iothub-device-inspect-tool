@@ -266,12 +266,15 @@ void MqttWindow::on_publishMsgButton_clicked()
     }
 
     int qos = ui->publishQosSpin->value();
-    QMQTT::Message message(0,
+    bool retain = ui->retainCheck->isChecked();
+    bool dup = ui->dupCheck->isChecked();
+    if(this->msgId >= std::numeric_limits<quint64>::max()) {
+        this->msgId = 0;
+    }
+    QMQTT::Message message(this->msgId++,
                            ui->publishTopicEdit->text(),
                            ui->pubMsgEdit->toPlainText().toUtf8(),
-                           qos,
-                           ui->retainCheck->isChecked(),
-                           ui->dupCheck->isChecked());
+                           qos, retain, dup);
     if (this->client->isConnectedToHost()) {
         this->client->publish(message);
     }
@@ -290,4 +293,14 @@ void MqttWindow::on_msgTextBrowser_customContextMenuRequested(const QPoint &pos)
 void MqttWindow::clearText(bool t)
 {
     ui->msgTextBrowser->setText("");
+}
+
+void MqttWindow::on_dupCheck_stateChanged(int arg1)
+{
+    qDebug() << "on_dupCheck_stateChanged: " << arg1;
+}
+
+void MqttWindow::on_retainCheck_stateChanged(int arg1)
+{
+    qDebug() << "on_retainCheck_stateChanged: " << arg1;
 }
